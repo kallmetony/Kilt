@@ -55,7 +55,8 @@ public abstract class ZombieInject extends Monster {
     @Expression("livingEntity != null")
     @ModifyExpressionValue(method = "hurt", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean kilt$handleZombieSummonAidEvent(boolean original, @Share("event") LocalRef<ZombieEvent.SummonAidEvent> eventRef, @Local LivingEntity entity, @Cancellable CallbackInfoReturnable<Boolean> cir) {
-        var event = ForgeEventFactory.fireZombieSummonAid((Zombie) (Object) this, this.level(), Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ()), entity, this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE).getValue());
+        var reinforcementChance = this.getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
+        var event = ForgeEventFactory.fireZombieSummonAid((Zombie) (Object) this, this.level(), Mth.floor(this.getX()), Mth.floor(this.getY()), Mth.floor(this.getZ()), entity, reinforcementChance != null ? reinforcementChance.getValue() : 0.0);
         eventRef.set(event);
 
         if (event.getResult() == Event.Result.DENY) {
