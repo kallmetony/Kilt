@@ -6,7 +6,7 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 import org.spongepowered.asm.mixin.Mixin
-import xyz.bluspring.kilt.loader.mixin.modifier.KiltMixinModifications
+import xyz.bluspring.kilt.loader.mixin.modifications.KiltMixinModifications
 import xyz.bluspring.kilt.util.KiltHelper
 
 object MixinAdditionalRemapper {
@@ -122,6 +122,18 @@ object MixinAdditionalRemapper {
                         this.values = KiltMixinModifications.mapToAnnotationValues(modifiedValues)
                     })
                 }
+            }
+        }
+
+        run {
+            val gamemode = FabricLoader.getInstance().mappingResolver.mapClassName("intermediary", "net.minecraft.class_636")
+            val gamemodeMoj = "net.minecraft.client.multiplayer.MultiPlayerGameMode"
+            if ((
+                        targetClassNames.contains(gamemode.replace(".", "/")) || targetClassNames.contains(gamemode) ||
+                                targetClassNames.contains(gamemodeMoj.replace(".", "/")) || targetClassNames.contains(gamemodeMoj)
+                        ) && classNode.name == "com/gregtechceu/gtceu/core/mixins/client/MultiPlayerGameModeMixin") {
+
+                classNode.methods.remove(classNode.methods[2])
             }
         }
     }
