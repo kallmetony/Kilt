@@ -57,7 +57,7 @@ public abstract class GrindstoneMenuInject extends AbstractContainerMenu impleme
         }
     }
 
-    @Mixin(targets = "net.minecraft.world.inventory.GrindstoneMenu$4")
+    @Mixin(targets = "net.minecraft.world.inventory.GrindstoneMenu$4", priority = 900)
     public abstract static class AnonymousResultSlotInject {
         @Shadow @Final private GrindstoneMenu field_16780;
 
