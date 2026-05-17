@@ -59,6 +59,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xyz.bluspring.kilt.injections.CapabilityProviderInjection;
+import xyz.bluspring.kilt.helpers.LivingDeathBridge;
 import xyz.bluspring.kilt.injections.world.entity.LivingEntityInjection;
 
 import java.util.Collection;
@@ -211,6 +212,7 @@ public abstract class LivingEntityInject extends Entity implements EntityExtensi
 
     @Inject(method = "die", at = @At("HEAD"), cancellable = true)
     private void kilt$checkLivingDeath(DamageSource damageSource, CallbackInfo ci) {
+        LivingDeathBridge.DIE_HANDLED.set(true);
         if (ForgeHooks.onLivingDeath((LivingEntity) (Object) this, damageSource))
             ci.cancel();
     }
