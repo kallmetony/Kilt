@@ -678,7 +678,7 @@ class KiltLoader : KnitModLoader<ForgeMod>(Kilt.MOD_ID, "Forge") {
                 val fabricContainer = FabricLoader.getInstance().getModContainer(entry.fabricModId).orElseThrow()
 
                 val paths = fabricContainer.rootPaths.toMutableList()
-                paths.add(FileSystemUtil.getJarFileSystem(neoDefinition.path, FileSystemUtil.AccessMode.READ_WRITE).get().rootDirectories.first())
+                paths.add(FileSystemUtil.getJarFileSystem(neoDefinition.path, false).get().rootDirectories.first())
 
                 rootsField.set(fabricContainer, paths)
             }
