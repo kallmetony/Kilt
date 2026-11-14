@@ -76,16 +76,20 @@ public abstract class ItemRendererInject {
     @WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;renderModelLists(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;IILcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V"))
     private void kilt$tryRenderMultipleLayers(ItemRenderer instance, BakedModel model, ItemStack stack, int combinedLight, int combinedOverlay, PoseStack poseStack, VertexConsumer originalBuffer, Operation<Void> original, @Local RenderType originalRenderType, @Local(ordinal = 2) boolean isFabulous, @Local(argsOnly = true) MultiBufferSource bufferSource, @Local(argsOnly = true) ItemDisplayContext displayContext) {
         var renderPasses = model.getRenderPasses(stack, isFabulous);
-        var renderTypes = model.getRenderTypes(stack, isFabulous);
 
         // Kilt: Detect and fallback to original rendering, for improved mod compatibility.
-        if (renderPasses.size() == 1 && renderPasses.get(0) == model && renderTypes.size() == 1 && renderTypes.get(0) == originalRenderType) {
-            original.call(instance, model, stack, combinedLight, combinedOverlay, poseStack, originalBuffer);
-            return;
+        if (renderPasses.size() == 1 && renderPasses.get(0) == model) {
+            var renderTypes = model.getRenderTypes(stack, isFabulous);
+
+            if (renderTypes.size() == 1 && renderTypes.get(0) == originalRenderType) {
+                original.call(instance, model, stack, combinedLight, combinedOverlay, poseStack, originalBuffer);
+                return;
+            }
         }
 
         for (BakedModel renderPass : renderPasses) {
-            for (RenderType renderType : renderTypes) {
+            // Forge queries the render types from each render pass, not from the outer model.
+            for (RenderType renderType : renderPass.getRenderTypes(stack, isFabulous)) {
                 // TODO: can we avoid copy pasting this entire thing for improved mod compat?
                 VertexConsumer vertexConsumer;
                 if (hasAnimatedTexture(stack) && stack.hasFoil()) {
