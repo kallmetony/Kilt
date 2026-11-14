@@ -57,6 +57,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.bluspring.kilt.helpers.mixin.CreateStatic;
 import xyz.bluspring.kilt.injections.entity.PlayerInjection;
+import xyz.bluspring.kilt.injections.world.food.FoodDataInjection;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -205,15 +206,22 @@ public abstract class PlayerInject extends LivingEntity implements IForgePlayer,
         return item;
     }
 
-    @Redirect(
+    // WrapOperation instead of Redirect, so mods that @Redirect this call (e.g. Spice of Life Classic) don't conflict
+    @WrapOperation(
             method = "eat",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/food/FoodData;eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;)V"
             )
     )
-    private void kilt$eatWithPlayer(FoodData instance, Item item, ItemStack stack) {
-        instance.eat(item, stack, this);
+    private void kilt$eatWithPlayer(FoodData instance, Item item, ItemStack stack, Operation<Void> original) {
+        var injection = (FoodDataInjection) instance;
+        injection.kilt$setEatingEntity(this);
+        try {
+            original.call(instance, item, stack);
+        } finally {
+            injection.kilt$setEatingEntity(null);
+        }
     }
 
     @Inject(method = "stopSleepInBed", at = @At("HEAD"))

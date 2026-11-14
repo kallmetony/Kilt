@@ -31,10 +31,15 @@ public abstract class FoodDataInject implements FoodDataInjection {
     @WrapMethod(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;)V")
     private void kilt$onFabricEat(Item item, ItemStack stack, Operation<Void> original) {
         if (!kilt$calledForgeEat.get() && KiltHelper.INSTANCE.hasMethodOverride(this.getClass(), FoodData.class, "eat", Item.class, ItemStack.class, LivingEntity.class)) {
-            eat(item, stack, null);
+            eat(item, stack, this.kilt$entity.get());
         } else {
             original.call(item, stack);
         }
+    }
+
+    @Override
+    public void kilt$setEatingEntity(@Nullable LivingEntity entity) {
+        this.kilt$entity.set(entity);
     }
 
     @Override

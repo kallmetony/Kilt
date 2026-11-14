@@ -9,4 +9,8 @@ public interface FoodDataInjection {
     default void eat(Item item, ItemStack stack, @Nullable LivingEntity entity)  {
         throw new IllegalStateException();
     }
+
+    default void kilt$setEatingEntity(@Nullable LivingEntity entity) {
+        throw new IllegalStateException();
+    }
 }
