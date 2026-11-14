@@ -4,8 +4,11 @@ import dev.architectury.event.EventResult
 import dev.architectury.event.events.common.EntityEvent
 import net.fabricmc.api.ModInitializer
 import net.minecraft.world.InteractionResult
+import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.ForgeEventFactory
+import net.minecraftforge.event.entity.living.LivingDeathEvent
 import net.minecraftforge.eventbus.api.Event
+import xyz.bluspring.kilt.helpers.LivingDeathBridge
 
 object KiltArchitecturyApiCompat {
     fun initCommon() {
@@ -14,6 +17,19 @@ object KiltArchitecturyApiCompat {
                 EventResult.interruptDefault()
             else
                 EventResult.pass()
+        }
+
+        // Bridge: when a Forge mod fires LivingDeathEvent without going through LivingEntity.die()
+        // (e.g. Cataclysm bosses override die() without super.die()), forward to Architectury
+        // so Fabric mods listening to EntityEvent.LIVING_DEATH (like FTB Quests) still get notified.
+        MinecraftForge.EVENT_BUS.addListener { event: LivingDeathEvent ->
+            try {
+                if (!LivingDeathBridge.DIE_HANDLED.get()) {
+                    EntityEvent.LIVING_DEATH.invoker().die(event.entity, event.source)
+                }
+            } finally {
+                LivingDeathBridge.DIE_HANDLED.set(false)
+            }
         }
     }
 
