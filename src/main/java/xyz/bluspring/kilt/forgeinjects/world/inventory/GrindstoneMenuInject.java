@@ -96,10 +96,11 @@ public abstract class GrindstoneMenuInject extends AbstractContainerMenu impleme
 
     @WrapOperation(method = "createResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/GrindstoneMenu;removeNonCurses(Lnet/minecraft/world/item/ItemStack;II)Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack kilt$skipRepairIfCountUnobtainable(GrindstoneMenu instance, ItemStack stack, int damage, int count, Operation<ItemStack> original) {
-        if (count > stack.getMaxStackSize())
+        ItemStack result = original.call(instance, stack, damage, count);
+        if (result.getCount() > result.getMaxStackSize())
             return ItemStack.EMPTY;
         else
-            return original.call(instance, stack, damage, count);
+            return result;
     }
 
     @WrapOperation(method = "mergeEnchants", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getItemEnchantmentLevel(Lnet/minecraft/world/item/enchantment/Enchantment;Lnet/minecraft/world/item/ItemStack;)I"))
